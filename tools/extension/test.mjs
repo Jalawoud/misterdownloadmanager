@@ -807,6 +807,10 @@ const MPD = (protect) => `<?xml version="1.0"?>
   const f = natives(calls).find((m) => m.url === "https://files.test/movie.mp4");
   assert.deepEqual([f.explicit, f.referrer, f.size, f.mime, f.video], [true, "https://watch.test/v/1", 52428800, "video/mp4", undefined]);
   assert.equal(f.filename, "", "a file with a name of its own is named by its address");
+  await api.storage.local.set({ mediaTitleName: true });
+  await popupAsk(listeners, { type: "media-download", tab: 9, url: "https://files.test/movie.mp4" });
+  assert.equal(natives(calls).filter((m) => m.url === "https://files.test/movie.mp4").at(-1).filename, "A film - movie.mp4");
+  await api.storage.local.set({ mediaTitleName: false });
   // #345: an address that ends in a long hash names nothing: the tab's title does.
   const hashed = "https://files.test/SFp1NUcrZFRkRUVrUWlqM3paMitkakJIUW9JSFhOeEZkd0ZMNEc5UHpnZm5hRkY4Vis5MjlJU00xdDVqTk1vaw.mp4";
   listeners.responseStarted({ tabId: 9, frameId: 0, type: "media", url: hashed, responseHeaders: [{ name: "Content-Type", value: "video/mp4" }, { name: "Content-Length", value: "52428800" }] });
